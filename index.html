@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>전북 호남고등학교 디지털 선도학교 우수사례 - Tech & Touch</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Fonts: Outfit (Google Sans alternative) & Noto Sans KR -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            /* Font Stack: Google Sans if available, then Outfit (look-alike), then Noto Sans KR */
+            font-family: 'Google Sans', 'Outfit', 'Noto Sans KR', sans-serif; 
+            background-color: #FDFCF6; /* Warm Cream Background */
+            color: #1C1917; /* Stone 900 */
+            line-height: 1.8; /* Global line-height increased */
+        }
+        h1, h2, h3, h4, .google-font {
+            font-family: 'Google Sans', 'Outfit', 'Noto Sans KR', sans-serif;
+            letter-spacing: -0.02em; /* Tighter spacing for geometric look */
+            line-height: 1.3; /* Keep headings tighter */
+        }
+        p {
+            margin-bottom: 0.5rem;
+        }
+        .highlight-text {
+            color: #D97706; /* Amber 600 */
+        }
+        .card-warm { 
+            background-color: #FFFFFF;
+            border: 1px solid #E7E5E4; /* Stone 200 */
+            border-radius: 16px; /* More rounded for Google style */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .card-warm:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 12px 28px rgba(180, 83, 9, 0.12); /* Amber tint shadow */
+            border-color: #FCD34D; /* Amber 300 */
+        }
+        .animate-fade-in { animation: fadeIn 0.8s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #F5F5F4; }
+        ::-webkit-scrollbar-thumb { background: #D6D3D1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #A8A29E; }
+
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #d97706; /* Amber */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Chat Markdown Styles */
+        .chat-content h1, .chat-content h2, .chat-content h3 {
+            font-weight: 700;
+            margin-top: 0.75rem;
+            margin-bottom: 0.25rem;
+            font-size: 1.1em;
+            line-height: 1.4;
+        }
+        .chat-content p {
+            margin-bottom: 0.5rem;
+            line-height: 1.8; /* Increased for chat as well */
+        }
+        .chat-content ul {
+            list-style-type: disc;
+            padding-left: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .chat-content ol {
+            list-style-type: decimal;
+            padding-left: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .chat-content li {
+            margin-bottom: 0.25rem;
+        }
+        .chat-content strong {
+            font-weight: 700;
+            color: inherit;
+        }
+        .chat-content a {
+            color: #d97706;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- Icons Components (Styled with warm colors) ---
+        const IconWrapper = ({ children, color = "currentColor", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                {children}
+            </svg>
+        );
+
+        const GraduationCap = (props) => (
+            <IconWrapper {...props}>
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </IconWrapper>
+        );
+        const Menu = (props) => (
+            <IconWrapper {...props}>
+                <line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>
+            </IconWrapper>
+        );
+        const X = (props) => (
+            <IconWrapper {...props}>
+                <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+            </IconWrapper>
+        );
+        const Calendar = (props) => (
+            <IconWrapper {...props}>
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
+            </IconWrapper>
+        );
+        const School = (props) => (
+            <IconWrapper {...props}>
+                <path d="m4 6 8-4 8 4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4"/><path d="M18 5v17"/><path d="M6 5v17"/>
+            </IconWrapper>
+        );
+        const User = (props) => (
+            <IconWrapper {...props}>
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </IconWrapper>
+        );
+        const CheckCircle = (props) => (
+            <IconWrapper {...props}>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </IconWrapper>
+        );
+        const BarChart = (props) => (
+            <IconWrapper {...props}>
+                <line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/>
+            </IconWrapper>
+        );
+        const Brain = (props) => (
+            <IconWrapper {...props}>
+                <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
+            </IconWrapper>
+        );
+        const MessageCircle = (props) => (
+            <IconWrapper {...props}>
+                 <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/>
+            </IconWrapper>
+        );
+        const Sparkles = (props) => (
+            <IconWrapper {...props}>
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L12 3Z"/>
+            </IconWrapper>
+        );
+        const Laptop = (props) => (
+            <IconWrapper {...props}>
+                <path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/>
+            </IconWrapper>
+        );
+        const FileText = (props) => (
+            <IconWrapper {...props}>
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/>
+            </IconWrapper>
+        );
+        const MonitorPlay = (props) => (
+            <IconWrapper {...props}>
+                <path d="m10 7 5 3-5 3Z"/><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>
+            </IconWrapper>
+        );
+        const ExternalLink = (props) => (
+            <IconWrapper {...props}>
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </IconWrapper>
+        );
+        const Edit = (props) => (
+            <IconWrapper {...props}>
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </IconWrapper>
+        );
+        const PenTool = (props) => (
+            <IconWrapper {...props}>
+                <path d="m12 19 7-7 3 3-7 7-3-3z"></path>
+                <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                <path d="m2 2 7.586 7.586"></path>
+                <circle cx="11" cy="11" r="2"></circle>
+            </IconWrapper>
+        );
+        const Upload = (props) => (
+            <IconWrapper {...props}>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </IconWrapper>
+        );
+        const MessageSquare = (props) => (
+            <IconWrapper {...props}>
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </IconWrapper>
+        );
+        const Send = (props) => (
+            <IconWrapper {...props}>
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </IconWrapper>
+        );
+        const Camera = (props) => (
+            <IconWrapper {...props}>
+                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
+                <circle cx="12" cy="13" r="3"></circle>
+            </IconWrapper>
+        );
+        const Key = (props) => (
+            <IconWrapper {...props}>
+                <path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+            </IconWrapper>
+        );
+        const Zap = (props) => (
+             <IconWrapper {...props}>
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </IconWrapper>
+        );
+        const Users = (props) => (
+            <IconWrapper {...props}>
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </IconWrapper>
+        );
+        const Layers = (props) => (
+            <IconWrapper {...props}>
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+            </IconWrapper>
+        );
+
+
+        // --- API Functions ---
+        async function generateText(prompt) {
+            // Netlify Snippet Injection을 통해 전역 변수로 설정된 키 사용
+            const apiKey = window.GEMINI_API_KEY;
+
+            if (!apiKey) {
+                console.error("API Key not found in window.GEMINI_API_KEY");
+                return "시스템 오류: API 키가 설정되지 않았습니다. 관리자에게 문의해주세요.";
+            }
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }]
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "죄송합니다. 응답을 생성할 수 없습니다.";
+            } catch (error) {
+                console.error("API Error:", error);
+                return "오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+            }
+        }
+
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('intro');
+            const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+            const [activeModalImage, setActiveModalImage] = useState(null);
+            const [showProblems, setShowProblems] = useState(false);
+            const [showIntro, setShowIntro] = useState(false);
+            
+            // --- Record Practice State ---
+            const [selectedStudent, setSelectedStudent] = useState(null);
+            const [keywords, setKeywords] = useState("");
+            const [recordType, setRecordType] = useState("subject"); // subject (세특) or behavior (행발)
+            const [generatedRecord, setGeneratedRecord] = useState("");
+            const [isGenerating, setIsGenerating] = useState(false);
+
+            const students = [
+                { id: "10101", name: "김철수" },
+                { id: "10102", name: "이영희" },
+                { id: "10103", name: "박지성" },
+                { id: "10104", name: "손흥민" },
+                { id: "10105", name: "김연아" }
+            ];
+
+            const today = new Date().toISOString().split('T')[0];
+
+            const handleStudentClick = (student) => {
+                setSelectedStudent(student);
+                setGeneratedRecord(""); // Reset result
+            };
+
+            const handleGenerateRecord = async () => {
+                if (!selectedStudent || !keywords.trim()) return;
+                
+                // API 키 확인 (window 전역 변수)
+                if (!window.GEMINI_API_KEY) {
+                    alert("API 키가 설정되지 않았습니다. (Netlify Snippet 확인 필요)");
+                    return;
+                }
+
+                setIsGenerating(true);
+                setGeneratedRecord("");
+
+                const typeLabel = recordType === 'subject' ? '고등학교 1학년 교과세특(과목별 세부능력 및 특기사항)' : '고등학교 1학년 행동발달 및 종합의견';
+                const prompt = `
+                    역할: 고등학교 교사
+                    작업: 생활기록부 작성
+                    유형: ${typeLabel}
+                    학생 이름: ${selectedStudent.name}
+                    관찰 키워드: ${keywords}
+                    
+                    요청사항:
+                    1. 위 키워드를 바탕으로 구체적이고 긍정적인 평가 문구를 작성해주세요.
+                    2. 문장은 "~함.", "~임." 등의 개조식 문체나 "~하였습니다." 등의 경어체가 아닌, 생기부 표준 종결어미("~함", "~모습을 보임", "~우수함" 등)로 작성하세요.
+                    3. 글자 수는 공백 포함 약 250자 내외로 작성해주세요.
+                    4. 한국어로 작성하세요.
+                `;
+
+                const result = await generateText(prompt);
+                setGeneratedRecord(result);
+                setIsGenerating(false);
+            };
+
+            // Chat & Quiz States
+            const [chatInput, setChatInput] = useState("");
+            const [chatHistory, setChatHistory] = useState([
+                { role: 'assistant', text: '안녕하세요! 전북 호남고등학교의 디지털 선도학교 우수 사례인 **"Tech & Touch"** 모델에 대해 궁금한 점이 있으신가요? AI 디지털 교무실, 자동화 피드백 시스템 등에 대해 물어보세요.' }
+            ]);
+            const [isChatLoading, setIsChatLoading] = useState(false);
+            const chatEndRef = useRef(null);
+            const [quiz, setQuiz] = useState(null);
+            const [isQuizLoading, setIsQuizLoading] = useState(false);
+            const [showQuizResult, setShowQuizResult] = useState(false);
+
+            // Handlers
+            const toggleMenu = () => setMobileMenuOpen(!mobileMenuOpen);
+            const scrollToSection = (id) => { setActiveTab(id); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); setMobileMenuOpen(false); };
+            const openModal = (imageSrc) => setActiveModalImage(imageSrc);
+            const closeModal = () => setActiveModalImage(null);
+
+            // Chat Submit
+            const handleChatSubmit = async (e) => {
+                e.preventDefault();
+                if (!chatInput.trim()) return;
+                
+                if (!window.GEMINI_API_KEY) {
+                    alert("API 키가 설정되지 않았습니다.");
+                    return;
+                }
+
+                const userMsg = chatInput;
+                setChatInput("");
+                setChatHistory(prev => [...prev, { role: 'user', text: userMsg }]);
+                setIsChatLoading(true);
+                
+                const systemPrompt = `당신은 '2025 전북 호남고등학교 디지털 선도학교 우수사례'의 AI 튜터입니다. 
+                주제는 "업무는 자동화(Tech), 관계는 인간화(Touch)"입니다.
+                핵심 내용은 다음과 같습니다:
+                1. 비전: 교사가 소비자(Consumer)가 아닌 생산자(Creator)가 되는 디지털 전환.
+                2. 4대 혁신:
+                   - 기록 혁신: AppSheet를 활용한 '손안의 생활기록부' (수업 관찰 즉시 기록).
+                   - 평가 혁신: Make 자동화 툴을 이용한 AI 피드백 생성 시스템.
+                   - 소통 혁신: 점수 통보가 아닌 '성장 피드백' 웹 플랫폼 (자체 제작).
+                   - 행정 혁신: 스마트 시정표 Ver 2.0 및 디지털 온라인 교무실로 실시간 현황 공유.
+                3. 성과: 업무 시간 3주 -> 3일로 단축, 학생 피드백 수용률 25% 증가.
+                
+                사용자의 질문에 대해 이 내용을 바탕으로 친절하고 전문적으로 답변해주세요. 한국어로 답변하세요.
+                
+                답변 시에는 가독성을 위해 다음 규칙을 지켜주세요:
+                1. **소주제별로 문단을 나누어** 구조적으로 작성하세요.
+                2. 중요한 키워드나 핵심 내용은 **볼드체**로 강조하세요.
+                3. 나열이 필요한 경우 **리스트(글머리 기호)**를 적극 활용하세요.`;
+
+                const response = await generateText(`${systemPrompt}\n\n사용자 질문: ${userMsg}`);
+                
+                setChatHistory(prev => [...prev, { role: 'assistant', text: response }]);
+                setIsChatLoading(false);
+            };
+            
+            useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatHistory]);
+
+            // Quiz Generate
+            const generateQuiz = async () => {
+                if (!window.GEMINI_API_KEY) {
+                    alert("API 키가 설정되지 않았습니다.");
+                    return;
+                }
+
+                setIsQuizLoading(true);
+                setQuiz(null);
+                setShowQuizResult(false);
+                
+                const prompt = `전북 호남고등학교 디지털 선도학교 우수사례(Tech & Touch, 앱시트, 자동화 피드백, 스마트 시정표 등) 내용을 바탕으로 
+                객관식 퀴즈 1문제를 만들어주세요. 
+                JSON 형식으로 다음 필드를 포함해야 합니다: question, options (배열), answer (정답 인덱스 0-3), explanation.
+                JSON만 출력하세요.`;
+                
+                try {
+                    let responseText = await generateText(prompt);
+                    responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+                    const quizData = JSON.parse(responseText);
+                    setQuiz(quizData);
+                } catch (e) {
+                    console.error("Quiz Error", e);
+                    // Fallback if API fails
+                    setQuiz({
+                        question: "전북 호남고등학교의 '평가 혁신' 사례에서 사용된 자동화 도구로, 교사가 키워드만 입력하면 AI가 피드백 초안을 생성해주는 툴은?",
+                        options: ["Notion", "Make", "Excel", "PowerPoint"],
+                        answer: 1,
+                        explanation: "전북 호남고는 노코드 자동화 툴인 'Make'를 활용하여 관찰 키워드를 입력하면 AI가 성장 중심 피드백을 자동 생성하는 파이프라인을 구축했습니다."
+                    });
+                }
+                setIsQuizLoading(false);
+            };
+
+            // Data
+            const navItems = [
+                { id: 'intro', label: 'Home' }, { id: 'innovations', label: '4대 혁신 사례' }, { id: 'class', label: '수업 적용' },
+                { id: 'outcomes', label: '운영 성과' }, { id: 'ai-features', label: '✅AI 체험' }, { id: 'gallery', label: '활동사진' }
+            ];
+
+            // Image URLs 
+            const profileImageSrc = "https://ivy-rugby-daf.notion.site/image/attachment%3A3a199f97-f1d4-405b-856d-1eb38e8402f2%3A%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7-2025-10-10-214714.svg?table=block&id=2883ec20-06d9-802c-8879-f10a58613375&spaceId=a57f2ff5-0671-465c-bf6a-c699bdf0fd16&userId=&cache=v2";
+            
+            // New Banner Images from Google Drive
+            const introImageSrc = "https://lh3.googleusercontent.com/d/1VMuU_Ag6BLTawt0w7MmLrFlD2Z4_MvzB";
+            const intro2ImageSrc = "https://lh3.googleusercontent.com/d/1IB0Oi4IpNk9yHM5mJi1cli1BvjGoAiYI";
+            const schoolStatusImageSrc = "https://lh3.googleusercontent.com/d/1H4b27klfqPZ4IKYMYCIOt94Wo3BvrjKw";
+            const summaryImageSrc = "https://lh3.googleusercontent.com/d/1jnhY2piY70CgF8bVFZJ4el7Nue_pMn5k";
+            const case1ImageSrc = "https://lh3.googleusercontent.com/d/117jP2Gr7YiJfO1P2Ep7BExlJVzjIs_UA";
+            const case2ImageSrc = "https://lh3.googleusercontent.com/d/1Gd3mEeKtJPQZxS6QgFdPdOR4cyMFG5C4";
+            
+            // New Image for Communication Innovation
+            const communicationCaseImageSrc = "https://lh3.googleusercontent.com/d/1JiFqy7RXUcZ9dQbTOdzC1K2K1GNJxR5r";
+            
+            // New Images for Problems
+            const problem1ImageSrc = "https://lh3.googleusercontent.com/d/1OyTeXnVO2Z5ZGNhyW51KI_PograK1gMA";
+            const problem2ImageSrc = "https://lh3.googleusercontent.com/d/1vz_IVk8JKfqgSmeSyJJUh2l2z2oNrEur";
+            
+            // New Images for Administration Innovation
+            const admin1ImageSrc = "https://lh3.googleusercontent.com/d/173nrMM8uNnzz7y8P7XcOA0TdjzUHZhbq";
+            const admin2ImageSrc = "https://lh3.googleusercontent.com/d/1zmjNQ0WvseoJjhkZLcCnmRs8xdQV8Yac";
+            const admin3ImageSrc = "https://lh3.googleusercontent.com/d/1O0Ff-FBtM8V0k7T5f3VRKjZn6qTHl4sG";
+            const admin4ImageSrc = "https://lh3.googleusercontent.com/d/1oVmF1wdi6e1Ex_D1UdBwENQmNuAzkyEt";
+            const admin5ImageSrc = "https://lh3.googleusercontent.com/d/1LxTfZpxbksgNaWPx3W5q1owb7r1s6D3N";
+
+            // New Images for Evaluation Innovation
+            const eval1ImageSrc = "https://lh3.googleusercontent.com/d/1lOaGuBtdcLs1x_L4H8U4-iCGKtpKIjaF";
+            const eval2ImageSrc = "https://lh3.googleusercontent.com/d/1NfqBAK789O5A0xs-qW6gfheluzDaRQnL";
+            
+            // New Banner Popup Image
+            const bannerPopupImageSrc = "https://lh3.googleusercontent.com/d/135c37kRjUC_MWBaTTQ8KmIQgWH1Zjrxh";
+
+            const profileModalImageSrc = "https://ivy-rugby-daf.notion.site/image/attachment%3A22d5c620-5d2d-43eb-9527-f1c30d3f23bd%3A%EC%A0%84%EC%A3%BC%EB%8C%80-2025-AIDT-%ED%99%9C%EC%9A%A9-%EC%98%81%EC%96%B4-%EC%88%98%EC%97%85-%EC%97%AD%EB%9F%89%EA%B0%95%ED%99%94-%EC%97%B0%EC%88%98-_251126_-002.jpg?table=block&id=2b63ec20-06d9-805b-b202-fcbe29a842ff&spaceId=a57f2ff5-0671-465c-bf6a-c699bdf0fd16&width=1420&userId=&cache=v2";
+            const careerModalImageSrc = "https://ivy-rugby-daf.notion.site/image/attachment%3A504098f4-2cde-4ddf-b94b-55b85ddb79bc%3A%EC%A0%84%EC%A3%BC%EB%8C%80-2025-AIDT-%ED%99%9C%EC%9A%A9-%EC%98%81%EC%96%B4-%EC%88%98%EC%97%85-%EC%97%AD%EB%9F%89%EA%B0%95%ED%99%94-%EC%97%B0%EC%88%98-_251126_-002.jpg?table=block&id=2b63ec20-06d9-8036-8f51-d1fff7779c09&spaceId=a57f2ff5-0671-465c-bf6a-c699bdf0fd16&width=1420&userId=&cache=v2";
+            
+            // Updated Footer Image (Converted to direct link)
+            const footerModalImageSrc = "https://lh3.googleusercontent.com/d/1FtV0qvmxut69-lSbhY5aYKzYhutwuTV3";
+            
+            const eduMinistryImageSrc = "https://ivy-rugby-daf.notion.site/image/attachment%3A5c0b8b56-2b02-4076-b7b3-78855db93ec0%3Aimage.png?table=block&id=2b63ec20-06d9-8043-823d-c98820c952fe&spaceId=a57f2ff5-0671-465c-bf6a-c699bdf0fd16&width=1420&userId=&cache=v2";
+
+            const activityPhotos = [
+                { url: "https://ivy-rugby-daf.notion.site/image/attachment%3A48ea0781-f7ef-409c-ba2a-e6f759aeccb0%3A20250416_190209.jpg?table=block&id=2b63ec20-06d9-8087-b2d6-fad4b86633a9&spaceId=a57f2ff5-0671-465c-bf6a-c699bdf0fd16&width=660&userId=&cache=v2", desc: "온라인 디지털 기반 협력 수업 모습" },
+                { url: "https://ivy-rugby-daf.notion.site/image/attachment%3A85a6c8a3-d163-40bb-bc65-4cb070372c4d%3ADSC_8120.jpg?table=block&id=2b63ec20-06d9-8003-929b-e9d6df1caab7&spaceId=a57f2ff5-0671-465c-bf6a-c699bdf0fd16&width=1420&userId=&cache=v2", desc: "AI · 디지털 활용 모둠 협력 수업" },
+                { url: "https://lh3.googleusercontent.com/d/1Dc2q-pG4-GiCDNYifTRci5uKin1xWGIZ", desc: "교직원이 직접 공감하는 연수" },
+                { url: "https://lh3.googleusercontent.com/d/1WMtRU9EyB6ifZm61L2nQTyT4rjftshr6", desc: "선도학교 업무담당자 철저한 준비" }
+            ];
+
+            return (
+                <div className="min-h-screen text-stone-800 relative">
+                    
+                    {/* Navigation */}
+                    <nav className="fixed top-0 w-full bg-[#FDFCF6]/90 backdrop-blur-md shadow-sm z-50 border-b border-stone-200">
+                        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex items-center h-16 gap-12">
+                                <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => openModal(bannerPopupImageSrc)}>
+                                    <GraduationCap color="#D97706" size={28} />
+                                    <span className="font-bold text-base text-stone-900 tracking-tight google-font whitespace-nowrap">
+                                        전북 호남고등학교 <span className="text-[#F43F5E]">2025 디지털 선도학교</span> 활용 사례 High Tech & Touch
+                                    </span>
+                                </div>
+                                <div className="hidden md:flex space-x-6 ml-auto">
+                                    {navItems.map((item) => (
+                                        <button key={item.id} onClick={() => scrollToSection(item.id)} className={`text-sm font-medium transition-colors duration-200 whitespace-nowrap ${activeTab === item.id ? 'text-stone-900 font-bold' : 'text-stone-500 hover:text-amber-600'}`}>
+                                            {item.label}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="md:hidden ml-auto">
+                                    <button onClick={toggleMenu} className="text-stone-600"><X size={24} /></button>
+                                </div>
+                            </div>
+                        </div>
+                        {mobileMenuOpen && (
+                            <div className="md:hidden bg-[#FDFCF6] border-b border-stone-200">
+                                <div className="px-2 pt-2 pb-3 space-y-1">
+                                    {navItems.map((item) => (
+                                        <button key={item.id} onClick={() => scrollToSection(item.id)} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-stone-600 hover:text-amber-700 hover:bg-orange-50">
+                                            {item.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </nav>
+
+                    {/* Hero Section */}
+                    <section id="intro" className="pt-40 pb-24 px-4 bg-gradient-to-b from-[#FDFCF6] to-white">
+                        <div className="max-w-4xl mx-auto text-center animate-fade-in">
+                            <div className="mb-6"><span className="inline-block py-1.5 px-4 rounded-full border border-amber-200 bg-orange-50 text-amber-800 text-xs font-bold tracking-wider shadow-sm">2025 디지털 선도학교 우수사례 공모전 발표자료</span></div>
+                            <h1 className="text-4xl md:text-6xl font-extrabold mb-4 text-stone-900 leading-tight google-font tracking-tight">
+                                <span className="block mb-6 text-3xl md:text-5xl font-medium text-stone-600">업무는 자동화(Tech), 관계는 인간화(Touch)</span>
+                                <span className="highlight-text block">데이터 기반 AI · 디지털 전환 문화 학교</span>
+                            </h1>
+                            <div className="text-2xl md:text-3xl font-semibold text-stone-400 mb-6 google-font tracking-wide">
+                                All-in-One Smart School
+                            </div>
+                            <div className="text-xl md:text-2xl font-bold text-green-600 mb-10 google-font tracking-tight">
+                                학교 현장의 디지털 전환 문화 (수업 · 행정 · 소통) 정착 및 확산 사례
+                            </div>
+                            <p className="text-lg md:text-xl text-stone-600 mb-10 leading-relaxed font-normal">
+                                교사가 소비자(Consumer)가 아닌 생산자(Creator)가 되는 디지털 전환<br className="hidden md:block"/>
+                                <span className="font-semibold text-stone-800">전북 호남고등학교</span>의 소통과 성장의 학교 문화 정착기
+                            </p>
+                            <div className="border-t border-stone-200 pt-8 inline-block mx-auto px-8">
+                                <div className="flex flex-col sm:flex-row justify-center gap-6 text-sm text-stone-500 mb-6">
+                                    <div className="flex items-center justify-center gap-2"><School size={18} color="#D97706" /><span className="google-font text-base font-medium">전북 호남고등학교 교육정보부장</span></div>
+                                </div>
+                                <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
+                                    <div className="text-stone-700 font-bold text-lg google-font flex items-center justify-center gap-2">
+                                        <img src={profileImageSrc} alt="Park Jeong-kyo" className="w-8 h-8 rounded-full border border-stone-300" />
+                                        발표자 : 교사 박정교
+                                    </div>
+                                    <div className="flex gap-2 flex-wrap justify-center items-center">
+                                        <div className="relative flex items-center">
+                                            <button 
+                                                onClick={() => setShowIntro(!showIntro)}
+                                                className={`px-3 py-1.5 border rounded-lg text-sm font-bold transition-colors flex items-center gap-1.5 ${showIntro ? 'bg-amber-100 border-amber-300 text-amber-800' : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'}`}
+                                            >
+                                                <User size={14} /> 소개 <span className="text-[10px] ml-0.5">{showIntro ? '▲' : '▼'}</span>
+                                            </button>
+                                            
+                                            {showIntro && (
+                                                <div className="absolute top-full left-0 mt-2 flex flex-col gap-2 bg-white p-2 rounded-lg shadow-xl border border-amber-100 z-20 min-w-[100px] animate-fade-in">
+                                                    <button 
+                                                        onClick={() => openModal(introImageSrc)}
+                                                        className="px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-md text-xs font-bold text-left w-full flex items-center gap-2 whitespace-nowrap"
+                                                    >
+                                                        <CheckCircle size={12} /> 소개(1)
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => openModal(intro2ImageSrc)}
+                                                        className="px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-md text-xs font-bold text-left w-full flex items-center gap-2 whitespace-nowrap"
+                                                    >
+                                                        <Sparkles size={12} /> 소개(2)
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <button 
+                                            onClick={() => openModal(schoolStatusImageSrc)}
+                                            className="px-3 py-1.5 bg-stone-50 text-stone-600 border border-stone-200 rounded-lg text-sm font-bold hover:bg-stone-100 transition-colors flex items-center gap-1.5"
+                                        >
+                                            <School size={14} /> 학교 현황
+                                        </button>
+                                        <button 
+                                            onClick={() => openModal(summaryImageSrc)}
+                                            className="px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-sm font-bold hover:bg-blue-100 transition-colors flex items-center gap-1.5"
+                                        >
+                                            <FileText size={14} /> 한장요약
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                {/* Problems Banner Row - Toggle Type */}
+                                <div className="mt-8 flex flex-col items-center justify-center gap-3">
+                                    <button 
+                                        onClick={() => setShowProblems(!showProblems)}
+                                        className={`px-6 py-2 border rounded-full text-sm font-bold shadow-sm flex items-center gap-2 transition-all duration-300 ${showProblems ? 'bg-red-100 border-red-200 text-red-800' : 'bg-red-50 border-red-100 text-red-700 hover:bg-red-100'}`}
+                                    >
+                                        <Zap size={16} /> 2024년 선도학교 운영 문제점
+                                        <span className="text-xs ml-1">{showProblems ? '▲' : '▼'}</span>
+                                    </button>
+                                    
+                                    {showProblems && (
+                                        <div className="flex gap-2 animate-fade-in">
+                                            <button 
+                                                onClick={() => openModal(problem1ImageSrc)}
+                                                className="px-3 py-1.5 bg-white border border-stone-200 text-stone-600 rounded-lg text-sm font-bold hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors flex items-center gap-1.5 shadow-sm"
+                                            >
+                                                <CheckCircle size={14} /> 문제점(1)
+                                            </button>
+                                            <button 
+                                                onClick={() => openModal(problem2ImageSrc)}
+                                                className="px-3 py-1.5 bg-white border border-stone-200 text-stone-600 rounded-lg text-sm font-bold hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors flex items-center gap-1.5 shadow-sm"
+                                            >
+                                                <CheckCircle size={14} /> 문제점(2)
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 4 Innovations Section (New from PDF) */}
+                    <section id="innovations" className="py-24 px-4 bg-white border-y border-stone-100">
+                        <div className="max-w-6xl mx-auto">
+                            <div className="text-center mb-16">
+                                <span className="text-amber-600 font-bold tracking-widest text-sm uppercase mb-2 block">Innovation</span>
+                                <h2 className="text-3xl md:text-4xl font-bold text-stone-900 mb-4 google-font">전북 호남고 AI · 디지털 전환(DX) 4대 혁신 사례</h2>
+                                <p className="text-stone-500 mt-4">단순한 도구 활용을 넘어, 교사가 직접 시스템을 설계하고 문화를 만들었습니다.</p>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <FeatureCard 
+                                    icon={<Edit color="#D97706" />} 
+                                    title="[기록 혁신] 손안의 생활기록부" 
+                                    desc="AppSheet 활용. 수업 직후 기억에 의존하던 관행을 탈피, 스마트폰 앱으로 학생의 발언과 태도를 즉시 기록. 데이터 기반 평가의 신뢰도 확보." 
+                                    actions={
+                                        <div className="flex gap-2 mt-3">
+                                            <button 
+                                                onClick={() => openModal(case1ImageSrc)}
+                                                className="px-2 py-1 bg-green-50 text-green-700 border border-green-200 rounded text-xs font-bold hover:bg-green-100 transition-colors flex items-center gap-1 whitespace-nowrap"
+                                            >
+                                                <CheckCircle size={12} /> 사례(1)
+                                            </button>
+                                            <button 
+                                                onClick={() => openModal(case2ImageSrc)}
+                                                className="px-2 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded text-xs font-bold hover:bg-purple-100 transition-colors flex items-center gap-1 whitespace-nowrap"
+                                            >
+                                                <Sparkles size={12} /> 사례(2)
+                                            </button>
+                                        </div>
+                                    }
+                                />
+                                <FeatureCard 
+                                    icon={<Zap color="#059669" />} 
+                                    title="[평가 혁신] Make 자동화 피드백" 
+                                    desc="Make 자동화 툴 도입. 교사가 관찰 키워드만 입력하면 AI가 문맥에 맞는 '성장 중심 피드백 초안'을 자동 생성. 업무 부담 획기적 경감." 
+                                    actions={
+                                        <div className="flex gap-2 mt-3">
+                                            <button 
+                                                onClick={() => openModal(eval1ImageSrc)}
+                                                className="px-2 py-1 bg-green-50 text-green-700 border border-green-200 rounded text-xs font-bold hover:bg-green-100 transition-colors flex items-center gap-1 whitespace-nowrap"
+                                            >
+                                                <CheckCircle size={12} /> 사례(1)
+                                            </button>
+                                            <button 
+                                                onClick={() => openModal(eval2ImageSrc)}
+                                                className="px-2 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded text-xs font-bold hover:bg-purple-100 transition-colors flex items-center gap-1 whitespace-nowrap"
+                                            >
+                                                <Sparkles size={12} /> 사례(2)
+                                            </button>
+                                            <a 
+                                                href="https://j-k-park.github.io/yanghun_10130/"
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-xs font-bold hover:bg-blue-100 transition-colors flex items-center gap-1 whitespace-nowrap"
+                                            >
+                                                <ExternalLink size={12} /> 링크주소
+                                            </a>
+                                        </div>
+                                    }
+                                />
+                                <FeatureCard 
+                                    icon={<Users color="#B45309" />} 
+                                    title="[소통 혁신] 성장 피드백 플랫폼" 
+                                    desc="자체 개발 웹 플랫폼(VIBE). 차가운 점수 통보 대신, 학생 개개인의 강약점 분석 데이터와 교사의 따뜻한 격려 코멘트를 실시간 제공." 
+                                    actions={
+                                        <div className="flex gap-2 mt-3 flex-wrap">
+                                            <button 
+                                                onClick={() => openModal(communicationCaseImageSrc)}
+                                                className="px-2 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded text-xs font-bold hover:bg-amber-100 transition-colors flex items-center gap-1 whitespace-nowrap"
+                                            >
+                                                <CheckCircle size={12} /> 사례
+                                            </button>
+                                            <a 
+                                                href="https://script.google.com/a/macros/honam.hs.kr/s/AKfycbyIhgzSGrHr-kwxbnfCJgQ_amcXQYOQ0UwbWt1GFbUhV5g1sBbMt1_9Hi7fyWAI_oNH/exec"
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-xs font-bold hover:bg-blue-100 transition-colors flex items-center gap-1 whitespace-nowrap"
+                                            >
+                                                <ExternalLink size={12} /> 링크주소
+                                            </a>
+                                            <a 
+                                                href="https://j-k-park.github.io/school_record_01/"
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded text-xs font-bold hover:bg-rose-100 transition-colors flex items-center gap-1 whitespace-nowrap"
+                                            >
+                                                <ExternalLink size={12} /> 세특 포트
+                                            </a>
+                                        </div>
+                                    }
+                                />
+                                <FeatureCard 
+                                    icon={<Layers color="#EA580C" />} 
+                                    title="[행정 혁신] 스마트 교무실 & 시정표" 
+                                    desc="스마트 시정표 Ver 2.0 및 디지털 온라인 교무실 구축. 복잡한 고교학점제 이동 수업과 행정 현황을 실시간 시각화하여 공유." 
+                                    actions={
+                                        <div className="flex gap-2 mt-3 flex-wrap">
+                                            {[
+                                                { id: 1, src: admin1ImageSrc },
+                                                { id: 2, src: admin2ImageSrc },
+                                                { id: 3, src: admin3ImageSrc },
+                                                { id: 4, src: admin4ImageSrc },
+                                                { id: 5, src: admin5ImageSrc },
+                                            ].map((item) => (
+                                                <button 
+                                                    key={item.id}
+                                                    onClick={() => openModal(item.src)}
+                                                    className="w-6 h-6 bg-orange-50 text-orange-700 border border-orange-200 rounded text-xs font-bold hover:bg-orange-100 transition-colors flex items-center justify-center"
+                                                >
+                                                    {item.id}
+                                                </button>
+                                            ))}
+                                            <a 
+                                                href="https://smartschool.pe.kr/"
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-xs font-bold hover:bg-blue-100 transition-colors flex items-center gap-1 whitespace-nowrap h-6"
+                                            >
+                                                <ExternalLink size={12} /> 링크주소
+                                            </a>
+                                        </div>
+                                    }
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Classroom Case Study - Updated with PDF Context */}
+                    <section id="class" className="py-24 px-4 bg-[#FDFCF6]">
+                        <div className="max-w-5xl mx-auto">
+                            <div className="mb-16 text-center">
+                                <h2 className="text-3xl md:text-4xl font-bold text-stone-900 mb-4 google-font">수업 적용: 하이브리드 융합</h2>
+                                <p className="text-stone-500 mb-6 font-medium">AI 코스웨어 + 교사 자체 개발 도구(VIBE/AppSheet)의 만남</p>
+                            </div>
+                            <div className="relative space-y-8 before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-stone-300 before:to-transparent">
+                                <TimelineItem 
+                                    step="도입 (Intro)" 
+                                    time="동기 유발" 
+                                    title="AI 어휘 진단 & 동기 부여" 
+                                    desc="AI 코스웨어로 선수 학습 수준을 진단하고, 유튜브 영상 시청 후 자체 제작 의견보드에 질문 답변. 학습 무기력 극복의 시작." 
+                                    icon={<MonitorPlay color="#FFFFFF" size={18} />} 
+                                    link="https://script.google.com/a/macros/honam.hs.kr/s/AKfycbyIhgzSGrHr-kwxbnfCJgQ_amcXQYOQ0UwbWt1GFbUhV5g1sBbMt1_9Hi7fyWAI_oNH/exec" 
+                                />
+                                <TimelineItem 
+                                    step="전개 (Development)" 
+                                    time="개별 학습" 
+                                    title="AI 튜터와 맞춤형 읽기/쓰기" 
+                                    desc="AI 발음 분석 및 구문 분석으로 자기주도적 독해. 교사가 직접 만든 'AI 영작문 첨삭 도우미'를 활용하여 실시간 피드백 제공." 
+                                    icon={<Brain color="#FFFFFF" size={18} />} 
+                                    link="https://j-k-park.github.io/yanghun_10130/"
+                                />
+                                <TimelineItem 
+                                    step="관찰 (Observation)" 
+                                    time="실시간 기록" 
+                                    title="AppSheet 수업 관찰 기록" 
+                                    desc="교사는 돌아다니며 학생의 질문, 태도, 성취도를 스마트폰 앱(AppSheet)에 즉시 터치하여 기록. 놓치는 학생 없는 촘촘한 관찰." 
+                                    icon={<Edit color="#FFFFFF" size={18} />} 
+                                    onClick={() => openModal(case1ImageSrc)}
+                                />
+                                <TimelineItem 
+                                    step="정리 (Feedback)" 
+                                    time="성장 리포트" 
+                                    title="개인 맞춤형 피드백 제공" 
+                                    desc="수업 데이터와 AI 분석 결과를 통합하여 학생별 웹페이지로 피드백 전송. 학생은 자신의 성장을 데이터로 확인하고 성취감 고취." 
+                                    icon={<FileText color="#FFFFFF" size={18} />} 
+                                    link="https://j-k-park.github.io/school_record_01/"
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Outcomes Section (New Stats from PDF) */}
+                    <section id="outcomes" className="py-24 bg-[#F1F5F9] text-slate-800 px-4">
+                        <div className="max-w-5xl mx-auto">
+                            <div className="text-center mb-16">
+                                <h2 className="text-3xl font-bold mb-6 text-slate-800 google-font">운영 성과 & 기대 효과</h2>
+                                <p className="text-slate-500 max-w-2xl mx-auto font-light leading-relaxed">
+                                    "기술이 행정을 줄이고 그 자리에 <span className="text-amber-600 font-medium">인간적인 소통(Touch)</span>을 채웠습니다."
+                                </p>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                <InfoBox 
+                                    icon={<Zap size={24} color="#0F172A" />} 
+                                    title="업무 효율화 (Quantitative)" 
+                                    desc={
+                                        <ul className="space-y-2">
+                                            <li>
+                                                학기말 생기부 기초자료 작성<br/>
+                                                <span className="ml-2">: <strong>3주 → 1주</strong> 단축</span>
+                                            </li>
+                                            <li>학생 피드백 수용 비율 : <strong>25% 이상 증가</strong></li>
+                                        </ul>
+                                    } 
+                                />
+                                <InfoBox 
+                                    icon={<Users size={24} color="#0F172A" />} 
+                                    title="학습 태도 변화 (Qualitative)" 
+                                    desc={
+                                        <ul className="space-y-2">
+                                            <li>학습 무기력 극복.</li>
+                                            <li>'선생님 저 혼자 다 풀었어요!' 성취감 경험.</li>
+                                            <li>교사 만족도 4.5/5.0 달성.</li>
+                                        </ul>
+                                    } 
+                                />
+                                <InfoBox 
+                                    icon={<School size={24} color="#0F172A" />} 
+                                    title="학교 문화 정착 (Culture)" 
+                                    desc={
+                                        <ul className="space-y-2">
+                                            <li>데이터 기반 '스마트 교무실' 정착.</li>
+                                            <li>행정실과 교무실들간의 장벽 허물고</li>
+                                            <li>'One-Team' 소통 문화 형성.</li>
+                                        </ul>
+                                    } 
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* AppSheet Practice Section (Replaced AI Features) */}
+                    <section id="ai-features" className="py-24 px-4 bg-amber-50 border-t border-stone-100">
+                        <div className="max-w-6xl mx-auto">
+                            <div className="text-center mb-12">
+                                <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide mb-3 inline-block">Interactive Demo</span>
+                                <h2 className="text-3xl md:text-4xl font-bold text-stone-900 mb-4 google-font">[기록 혁신] 손안의 생활기록부 실습하기</h2>
+                                <p className="text-stone-600 max-w-2xl mx-auto">
+                                    왼쪽 스마트폰 화면에서 학생을 선택하고 키워드를 입력해보세요.<br/>
+                                    오른쪽 화면에서 AI가 생성한 생기부 초안을 즉시 확인할 수 있습니다.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col lg:flex-row gap-12 items-start justify-center">
+                                {/* Left Column: Mobile Phone UI */}
+                                <div className="w-full max-w-sm mx-auto lg:mx-0 shrink-0">
+                                    <div className="bg-stone-900 rounded-[3rem] p-4 shadow-2xl border-4 border-stone-800">
+                                        {/* Phone Screen */}
+                                        <div className="bg-white rounded-[2rem] overflow-hidden h-[600px] flex flex-col relative">
+                                            {/* Status Bar Mockup */}
+                                            <div className="bg-stone-100 h-8 flex items-center justify-between px-6 text-[10px] text-stone-500 font-bold border-b border-stone-200">
+                                                <span>12:00</span>
+                                                <div className="flex gap-1">
+                                                    <div className="w-3 h-3 bg-stone-300 rounded-full"></div>
+                                                    <div className="w-3 h-3 bg-stone-300 rounded-full"></div>
+                                                </div>
+                                            </div>
+
+                                            {/* App Header */}
+                                            <div className="bg-[#1C3AA9] p-4 text-white shadow-md z-10">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-1.5 bg-white/20 rounded-lg"><Edit size={18} color="white" /></div>
+                                                    <div>
+                                                        <div className="text-xs opacity-80">Teacher's App</div>
+                                                        <div className="font-bold text-lg">수업 관찰 기록</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* App Content */}
+                                            <div className="flex-1 overflow-y-auto p-4 bg-slate-50">
+                                                {/* Date Section */}
+                                                <div className="mb-4">
+                                                    <label className="text-xs font-bold text-slate-500 mb-1 block">관찰 일자</label>
+                                                    <div className="bg-white p-3 rounded-xl border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-sm">
+                                                        <Calendar size={16} className="text-slate-400" /> {today}
+                                                    </div>
+                                                </div>
+
+                                                {/* Student Selection */}
+                                                <div className="mb-4">
+                                                    <label className="text-xs font-bold text-slate-500 mb-2 block">학생 선택 (터치)</label>
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        {students.map(student => (
+                                                            <button 
+                                                                key={student.id}
+                                                                onClick={() => handleStudentClick(student)}
+                                                                className={`p-3 rounded-xl border text-left transition-all ${selectedStudent?.id === student.id ? 'bg-[#1C3AA9] border-[#1C3AA9] text-white shadow-md ring-2 ring-offset-1 ring-[#1C3AA9]' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}`}
+                                                            >
+                                                                <div className="text-xs opacity-70 mb-0.5">{student.id}</div>
+                                                                <div className="font-bold">{student.name}</div>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                {/* Observation Form (Visible when student selected) */}
+                                                {selectedStudent && (
+                                                    <div className="animate-fade-in space-y-4">
+                                                        <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-center gap-2 text-sm text-blue-800">
+                                                            <CheckCircle size={16} /> 
+                                                            <span className="font-bold">{selectedStudent.name}</span> 학생 선택됨
+                                                        </div>
+
+                                                        <div>
+                                                            <label className="text-xs font-bold text-slate-500 mb-1 block">핵심 키워드 입력</label>
+                                                            <textarea 
+                                                                value={keywords}
+                                                                onChange={(e) => setKeywords(e.target.value)}
+                                                                placeholder="예: 영어 발표, 논리적 주장, 적극적 참여, 단어 암기 우수"
+                                                                className="w-full p-3 rounded-xl border border-slate-300 focus:outline-none focus:border-[#1C3AA9] text-sm h-24 resize-none shadow-sm"
+                                                            ></textarea>
+                                                        </div>
+                                                        
+                                                        <div className="pt-2">
+                                                            <label className="text-xs font-bold text-slate-500 mb-2 block">기록 유형 선택</label>
+                                                            <div className="flex bg-white p-1 rounded-lg border border-slate-200 mb-4">
+                                                                <button onClick={() => setRecordType("subject")} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${recordType === "subject" ? "bg-slate-800 text-white" : "text-slate-500 hover:bg-slate-50"}`}>교과세특</button>
+                                                                <button onClick={() => setRecordType("behavior")} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${recordType === "behavior" ? "bg-slate-800 text-white" : "text-slate-500 hover:bg-slate-50"}`}>행동발달</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <button 
+                                                            onClick={handleGenerateRecord}
+                                                            disabled={isGenerating || !keywords.trim()}
+                                                            className={`w-full py-3.5 rounded-xl font-bold text-white shadow-lg flex items-center justify-center gap-2 transition-all ${isGenerating ? 'bg-slate-400' : 'bg-[#1C3AA9] hover:bg-[#152C85] active:scale-95'}`}
+                                                        >
+                                                            {isGenerating ? <div className="loader w-4 h-4 border-white border-t-transparent"></div> : <Send size={18} />}
+                                                            {isGenerating ? 'AI 생성 중...' : '기록 저장 및 AI 생성'}
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            
+                                            {/* Bottom Nav Mockup */}
+                                            <div className="h-14 bg-white border-t border-stone-100 flex justify-around items-center px-6">
+                                                <div className="flex flex-col items-center gap-1 text-[#1C3AA9]"><Edit size={20} /><div className="text-[10px] font-bold">기록</div></div>
+                                                <div className="flex flex-col items-center gap-1 text-slate-300"><Users size={20} /><div className="text-[10px]">학생</div></div>
+                                                <div className="flex flex-col items-center gap-1 text-slate-300"><BarChart size={20} /><div className="text-[10px]">통계</div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right Column: AI Generation Result */}
+                                <div className="flex-1 w-full max-w-xl">
+                                    <div className="bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden h-full min-h-[500px] flex flex-col">
+                                        <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 text-white">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm">
+                                                        <Sparkles size={20} className="text-amber-400" />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-xs text-slate-300 font-medium">Make 자동화 시스템</div>
+                                                        <h3 className="text-xl font-bold">생기부 초안 생성 결과</h3>
+                                                    </div>
+                                                </div>
+                                                <div className="px-3 py-1 bg-amber-500/20 border border-amber-500/50 rounded-full text-amber-300 text-xs font-bold">
+                                                    AI Powered
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-4 text-sm text-slate-300 border-t border-white/10 pt-4">
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs opacity-50">학생명</span>
+                                                    <span className="font-bold text-white">{selectedStudent ? `${selectedStudent.name} (${selectedStudent.id})` : '-'}</span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs opacity-50">기록 유형</span>
+                                                    <span className="font-bold text-white">{recordType === 'subject' ? '교과세특' : '행동발달'}</span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs opacity-50">작성일</span>
+                                                    <span className="font-bold text-white">{today}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex-1 p-8 bg-slate-50 relative">
+                                            {!selectedStudent && (
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 p-4 text-center">
+                                                    <Edit size={48} className="mb-4 opacity-20" />
+                                                    <p>왼쪽 스마트폰 화면에서 학생을 선택하고<br/>관찰 내용을 입력해주세요.</p>
+                                                </div>
+                                            )}
+                                            
+                                            {selectedStudent && !generatedRecord && !isGenerating && (
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 p-4 text-center animate-fade-in">
+                                                    <Zap size={48} className="mb-4 opacity-20" />
+                                                    <p>키워드를 입력하고<br/>'기록 저장 및 AI 생성' 버튼을 눌러주세요.</p>
+                                                </div>
+                                            )}
+
+                                            {isGenerating && (
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-10">
+                                                    <div className="loader w-10 h-10 border-4 border-slate-200 border-t-amber-500 mb-4"></div>
+                                                    <p className="text-slate-600 font-bold animate-pulse">AI가 생기부 문구를 작성 중입니다...</p>
+                                                    <p className="text-xs text-slate-400 mt-2">입력된 키워드를 분석하고 있습니다.</p>
+                                                </div>
+                                            )}
+
+                                            {generatedRecord && (
+                                                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm animate-fade-in h-full flex flex-col">
+                                                    <div className="flex justify-between items-center mb-4 pb-4 border-b border-slate-100">
+                                                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Generated Content</span>
+                                                        <button onClick={() => navigator.clipboard.writeText(generatedRecord)} className="text-xs text-[#1C3AA9] font-bold hover:underline flex items-center gap-1"><FileText size={12}/> 복사하기</button>
+                                                    </div>
+                                                    <div className="prose prose-sm max-w-none text-slate-700 leading-relaxed font-serif flex-1 overflow-y-auto whitespace-pre-line">
+                                                        {generatedRecord}
+                                                    </div>
+                                                    <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
+                                                        <span className="text-xs text-slate-400">공백 포함 {generatedRecord.length}자</span>
+                                                        <div className="flex gap-1">
+                                                            <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                                            <span className="text-xs text-slate-500 font-medium">작성 완료</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Activity Photos Gallery Section */}
+                    <section id="gallery" className="py-24 px-4 bg-white">
+                        <div className="max-w-5xl mx-auto">
+                            <div className="text-center mb-16">
+                                <span className="text-amber-600 font-bold tracking-widest text-sm uppercase mb-2 block">Gallery</span>
+                                <h2 className="text-3xl md:text-4xl font-bold text-stone-900 mb-4 google-font flex items-center justify-center gap-3">
+                                    <Camera size={32} className="text-stone-800" />
+                                    활동사진
+                                </h2>
+                                <div className="w-16 h-1 bg-amber-500 mx-auto rounded-full"></div>
+                                <p className="text-stone-500 mt-4">다양한 AI · 디지털 활용 교육 활동 모습</p>
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                {activityPhotos.map((photo, idx) => (
+                                    <div key={idx} className="group cursor-pointer" onClick={() => openModal(photo.url)}>
+                                        <div className="overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 mb-3 border border-stone-100">
+                                            <img src={photo.url} alt={photo.desc} className="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-500" />
+                                        </div>
+                                        <p className="text-center text-stone-700 font-bold text-sm group-hover:text-amber-600 transition-colors">{photo.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Footer */}
+                    <footer className="bg-[#FDFCF6] py-16 border-t border-stone-200">
+                        <div className="max-w-5xl mx-auto px-4 text-center">
+                            <p className="text-stone-500 text-lg mb-2 font-medium">Consumer에서 Creator로</p>
+                            <h3 className="font-bold text-stone-800 mb-3 google-font text-2xl">전북 호남고등학교 교육정보부</h3>
+                            <p className="text-stone-500 text-lg mb-8">2025 디지털 선도학교 우수사례 (Tech & Touch)</p>
+                            
+                            <div className="inline-flex items-center gap-2 px-5 py-2 bg-white border border-stone-200 rounded-full text-sm text-stone-600 shadow-sm cursor-pointer hover:bg-stone-50 transition-colors" onClick={() => openModal(footerModalImageSrc)}>
+                                <span className="w-2 h-2 bg-green-600 rounded-full"></span>
+                                <span className="font-medium">Teacher: Park Jeong-kyo</span>
+                            </div>
+                            <div className="mt-10 text-sm text-black font-medium leading-relaxed">
+                                <p>Copyrightⓒ 호남고등학교. All rights reserved</p>
+                                <p className="mt-1">주소 : (우 : 56202) 전북특별자치도 정읍시 정읍남로 1364-13</p>
+                                <p>전화 : 교무실 : 063-570-7815 행정실 : 063-570-7884~1 FAX:063-537-7182</p>
+                            </div>
+                        </div>
+                    </footer>
+
+                    {/* Image Modal */}
+                    {activeModalImage && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-fade-in" onClick={closeModal}>
+                            <div className="relative max-w-[95vw] max-h-[95vh] w-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                                <button onClick={closeModal} className="absolute -top-12 right-0 md:right-4 text-white hover:text-amber-400 transition-colors bg-black/50 rounded-full p-2"><X size={32} /></button>
+                                <img src={activeModalImage} alt="확대 이미지" className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl border border-stone-800" />
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // ... (Component Helper Functions) ...
+        const FeatureCard = ({ icon, title, desc, actions }) => (
+            <div className="card-warm p-8 rounded-xl h-full flex flex-col">
+                <div className="flex items-start gap-4 mb-3">
+                    <div className="p-3 bg-orange-50 rounded-lg border border-orange-100 shrink-0">{icon}</div>
+                    <div className="flex-1">
+                        <h3 className="font-bold text-xl text-stone-800 google-font">{title}</h3>
+                        {actions && <div>{actions}</div>}
+                    </div>
+                </div>
+                <p className="text-stone-600 leading-relaxed flex-1 mt-2">{desc}</p>
+            </div>
+        );
+        const TimelineItem = ({ step, time, title, desc, icon, link, onClick }) => { 
+            const contentClasses = "bg-white p-6 rounded-xl border border-stone-200 shadow-sm hover:border-amber-300 transition-colors h-full"; 
+            const wrapperClasses = "w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)]"; 
+            const InnerContent = () => (
+                <div className={contentClasses}>
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-1">
+                        <span className="text-amber-700 font-bold text-sm uppercase tracking-wider">{step}</span>
+                        <span className="text-stone-400 text-xs font-medium bg-stone-100 px-2 py-0.5 rounded-full w-fit">{time}</span>
+                    </div>
+                    <h4 className="font-bold text-lg text-stone-900 mb-2 google-font flex items-center gap-2">
+                        {title}
+                        {link && <ExternalLink size={16} className="text-stone-400" />}
+                    </h4>
+                    <div className="text-stone-600 text-sm leading-relaxed">{desc}</div>
+                </div>
+            ); 
+            
+            return (
+                <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-[#FDFCF6] bg-amber-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                        {icon}
+                    </div>
+                    {link ? (
+                        <a href={link} target="_blank" rel="noopener noreferrer" className={`${wrapperClasses} group-hover:scale-[1.02] transition-transform block`}>
+                            <InnerContent />
+                        </a>
+                    ) : onClick ? (
+                        <div onClick={onClick} className={`${wrapperClasses} group-hover:scale-[1.02] transition-transform block cursor-pointer`}>
+                            <InnerContent />
+                        </div>
+                    ) : (
+                        <div className={wrapperClasses}>
+                            <InnerContent />
+                        </div>
+                    )}
+                </div>
+            ); 
+        };
+        const InfoBox = ({ icon, title, desc }) => (<div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm hover:border-slate-300 hover:shadow-md transition-all"><div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mb-5 text-slate-700">{icon}</div><h4 className="font-bold text-xl mb-3 text-slate-800 google-font">{title}</h4><div className="text-sm text-slate-600 leading-relaxed">{desc}</div></div>);
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
