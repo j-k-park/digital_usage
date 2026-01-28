@@ -18,9 +18,10 @@
         body { 
             /* Font Stack: Google Sans if available, then Outfit (look-alike), then Noto Sans KR */
             font-family: 'Google Sans', 'Outfit', 'Noto Sans KR', sans-serif; 
-            background-color: #FDFCF6; /* Warm Cream Background */
+            background-color: #FDFCF6; /* Warm Cream Background (Default) */
             color: #1C1917; /* Stone 900 */
             line-height: 1.8; /* Global line-height increased */
+            transition: background-color 0.5s ease; /* Smooth transition for theme change */
         }
         h1, h2, h3, h4, .google-font {
             font-family: 'Google Sans', 'Outfit', 'Noto Sans KR', sans-serif;
@@ -207,7 +208,7 @@
         );
         const Upload = (props) => (
             <IconWrapper {...props}>
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="17 8 12 3 7 8"></polyline>
                 <line x1="12" y1="3" x2="12" y2="15"></line>
             </IconWrapper>
@@ -254,6 +255,15 @@
                 <polyline points="2 12 12 17 22 12"></polyline>
             </IconWrapper>
         );
+        const Palette = (props) => (
+            <IconWrapper {...props}>
+                <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
+                <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
+                <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>
+                <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
+                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.063 0-1.125.75-2.062 1.969-2.062H17c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+            </IconWrapper>
+        );
 
 
         // --- API Functions ---
@@ -288,6 +298,108 @@
             }
         }
 
+        // --- Theme Colors ---
+        const themeColors = [
+            { name: 'Warm Cream', value: '#FDFCF6' },
+            { name: 'Soft Blue', value: '#EFF6FF' }, 
+            { name: 'Mint Green', value: '#ECFDF5' }, 
+            { name: 'Pale Rose', value: '#FFF1F2' }, 
+            { name: 'Lavender', value: '#F5F3FF' }, 
+            { name: 'Peach', value: '#FFF7ED' }, 
+            { name: 'Lemon', value: '#FEFCE8' }, 
+            { name: 'Mist Gray', value: '#F8FAFC' }, 
+        ];
+
+        // --- New Component: Zoomable & Draggable Image Modal ---
+        const ImageModal = ({ src, onClose }) => {
+            const [scale, setScale] = useState(1);
+            const [position, setPosition] = useState({ x: 0, y: 0 });
+            const [isDragging, setIsDragging] = useState(false);
+            const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+            // Prevent background scrolling when modal is open
+            useEffect(() => {
+                document.body.style.overflow = 'hidden';
+                return () => {
+                    document.body.style.overflow = 'unset';
+                };
+            }, []);
+
+            const handleWheel = (e) => {
+                // Prevent default scrolling behavior inside the modal
+                e.preventDefault(); 
+                e.stopPropagation();
+                
+                // Determine zoom direction: negative deltaY is scrolling up (zoom in)
+                const delta = e.deltaY < 0 ? 0.1 : -0.1;
+                // Limit zoom scale between 0.5x and 5x
+                setScale(prev => Math.max(0.5, Math.min(5, prev + delta)));
+            };
+
+            const handleMouseDown = (e) => {
+                e.preventDefault();
+                e.stopPropagation(); // Prevent modal close on drag start
+                setIsDragging(true);
+                setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+            };
+
+            const handleMouseMove = (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                e.stopPropagation();
+                setPosition({
+                    x: e.clientX - dragStart.x,
+                    y: e.clientY - dragStart.y
+                });
+            };
+
+            const handleMouseUp = (e) => {
+                if (isDragging) {
+                    setIsDragging(false);
+                    e.stopPropagation(); // Prevent triggering click events after drag
+                }
+            };
+
+            return (
+                <div 
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm animate-fade-in overflow-hidden" 
+                    onClick={onClose}
+                    onMouseUp={handleMouseUp}
+                    onMouseMove={handleMouseMove}
+                    onMouseLeave={handleMouseUp}
+                >
+                    <div 
+                        className="relative w-full h-full flex items-center justify-center" 
+                        onWheel={handleWheel} 
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button 
+                            onClick={onClose} 
+                            className="absolute top-6 right-6 text-white hover:text-amber-400 transition-colors bg-black/50 rounded-full p-2 z-50 border border-white/20 cursor-pointer"
+                        >
+                            <X size={32} />
+                        </button>
+                        <img 
+                            src={src} 
+                            alt="확대 이미지" 
+                            className="max-w-[95vw] max-h-[95vh] object-contain rounded-lg shadow-2xl will-change-transform" 
+                            style={{ 
+                                transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                                cursor: isDragging ? 'grabbing' : 'grab',
+                                transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                            }}
+                            draggable="false"
+                            onMouseDown={handleMouseDown}
+                        />
+                        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/50 text-white text-xs px-4 py-2 rounded-full pointer-events-none flex flex-col items-center gap-1 z-50 text-center">
+                            <span className="font-bold">마우스 휠: 확대/축소 ({Math.round(scale * 100)}%)</span>
+                            <span className="text-stone-300">드래그하여 이동 가능</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
 
         const App = () => {
             const [activeTab, setActiveTab] = useState('intro');
@@ -295,7 +407,14 @@
             const [activeModalImage, setActiveModalImage] = useState(null);
             const [showProblems, setShowProblems] = useState(false);
             const [showIntro, setShowIntro] = useState(false);
+            const [themeColor, setThemeColor] = useState('#FDFCF6');
+            const [showThemePicker, setShowThemePicker] = useState(false);
             
+            // Apply theme to body
+            useEffect(() => {
+                document.body.style.backgroundColor = themeColor;
+            }, [themeColor]);
+
             // --- Record Practice State ---
             const [selectedStudent, setSelectedStudent] = useState(null);
             const [keywords, setKeywords] = useState("");
@@ -321,32 +440,90 @@
             const handleGenerateRecord = async () => {
                 if (!selectedStudent || !keywords.trim()) return;
                 
-                // API 키 확인 (window 전역 변수)
-                if (!window.GEMINI_API_KEY) {
-                    alert("API 키가 설정되지 않았습니다. (Netlify Snippet 확인 필요)");
-                    return;
-                }
-
                 setIsGenerating(true);
                 setGeneratedRecord("");
 
-                const typeLabel = recordType === 'subject' ? '고등학교 1학년 교과세특(과목별 세부능력 및 특기사항)' : '고등학교 1학년 행동발달 및 종합의견';
-                const prompt = `
-                    역할: 고등학교 교사
-                    작업: 생활기록부 작성
-                    유형: ${typeLabel}
-                    학생 이름: ${selectedStudent.name}
-                    관찰 키워드: ${keywords}
-                    
-                    요청사항:
-                    1. 위 키워드를 바탕으로 구체적이고 긍정적인 평가 문구를 작성해주세요.
-                    2. 문장은 "~함.", "~임." 등의 개조식 문체나 "~하였습니다." 등의 경어체가 아닌, 생기부 표준 종결어미("~함", "~모습을 보임", "~우수함" 등)로 작성하세요.
-                    3. 글자 수는 공백 포함 약 250자 내외로 작성해주세요.
-                    4. 한국어로 작성하세요.
-                `;
+                // 1. 데모용 예시 데이터 (API 키가 없을 때 보여줄 고품질 예시)
+                const mockSubjectResult = `[도입] 평소 영어 교과에 대한 높은 흥미를 바탕으로 수업에 적극적으로 참여하며, 2022 개정 교육과정의 성취기준인 '이해(Reception)'와 '표현(Production)' 영역에서 고른 성장을 보임.
+[전개] '${keywords}'와 관련된 탐구 활동을 수행함. 디지털 도구인 챗GPT와 온라인 사전을 활용하여 관련 자료를 수집하고, 자신의 진로인 미디어 분야와 연결하여 영문 기사를 작성함. 이 과정에서 단순히 번역기에 의존하지 않고, 문맥에 맞는 어휘를 선정하기 위해 비판적으로 검토하는 태도가 인상적임.
+[심화] 모둠 활동에서는 '협력적 소통 역량'을 발휘하여 동료들의 피드백을 수용하고 자신의 글을 수정 보완함. 또한 복잡한 정보를 구조화하여 전달하는 '지식정보처리 역량'이 돋보임.
+[결론] 교과 지식을 삶과 연계하여 깊이 있게 탐구하는 자세를 갖추었으며, 디지털 리터러시와 의사소통 능력을 바탕으로 글로벌 인재로 성장할 가능성이 매우 큼.`;
 
-                const result = await generateText(prompt);
-                setGeneratedRecord(result);
+                const mockBehaviorResult = `[도입] 밝고 긍정적인 성품으로 교우 관계가 원만하며, 학급의 궂은일을 도맡아 하는 '공동체 역량'이 뛰어난 학생임. '2022 개정 교육과정'이 추구하는 포용성과 주도성을 겸비함.
+[본문] '${keywords}' 상황에서 남다른 배려심을 보임. 점심시간 멘토링 활동을 주도하여 친구의 학습을 돕고, 체육대회나 학급 행사 준비 과정에서 의견 충돌이 있을 때마다 경청과 공감의 자세로 중재안을 제시하는 '협력적 소통 역량'을 발휘함. 또한 자신의 진로 목표를 달성하기 위해 자기주도적으로 계획을 수립하고 실천하는 '자기관리 역량'이 돋보임.
+[결론] 타인을 존중하고 배려하는 바른 인성과 합리적인 문제 해결 능력을 갖추고 있어, 앞으로 공동체의 발전에 기여하는 리더로 성장할 것으로 기대됨.`;
+
+                // 2. 실제 API 호출 시도
+                if (window.GEMINI_API_KEY) {
+                    let prompt = "";
+                    if (recordType === 'subject') {
+                         prompt = `
+                        1. 역할 정의 : 당신은 대한민국 고등학교 영어 교사로서, '2022 개정 영어과 교육과정'에 대한 깊은 이해를 바탕으로 학교생활기록부의 '세부능력 및 특기사항'을 작성하는 전문가입니다.
+                          
+                        2. 2022 개정 교육과정 반영 지침 (필수 고려 사항) :
+                           다음의 핵심 변경 사항과 강조점을 반영하여 세특을 작성해 주세요.
+                          • 핵심 역량 반영: 단순 지식 나열을 지양하고, 6대 핵심 역량 (①자기관리, ②지식정보처리, ③창의적 사고, ④심미적 감성, ⑤협력적 소통, ⑥공동체 역량) 중 학생이 활동에서 보여준 역량을 구체적으로 서술하세요.
+                          • 영역의 변화: 기존의 4기능(듣기, 말하기, 읽기, 쓰기) 통합에 따라 **'이해(Reception)'**와 '표현(Production)' 영역으로 구분하여 기술하세요.
+                          • 정의적 영역 포함: 학생이 활동 과정에서 보여준 영어에 대한 흥미, 자신감, 참여 태도를 성취기준과 연계하여 구체적으로 언급하세요.
+                          • 디지털/AI 활용: 수업 중 활용한 디지털 도구(AI 번역기, 챗봇, 온라인 사전, 메타버스 등)나 매체 활용 능력을 포함하세요.
+                          • 삶과 연계한 깊이 있는 학습: 교과 지식이 학생의 진로, 실생활, 또는 타 교과와 어떻게 연결되고 확장되었는지 보여주세요.
+                          
+                        3. 작성 구조 (STEP BY STEP)
+                        1. [도입] 수업 태도 및 성취기준 도달 정도 (정의적 영역 포함)
+                        2. [전개] 구체적인 수행평가/활동 내용 (주제, 사용한 디지털 도구, 탐구 과정)
+                        3. [심화] 학생만의 차별화된 역량 및 문제 해결 과정 (6대 핵심 역량 연계)
+                        4. [결론] 활동을 통해 성장한 점 및 진로와의 연계성
+                          
+                        4. 사용자가 입력하는 키워드 [${keywords}]와 학생 이름 [${selectedStudent.name}]을 바탕으로, 교육적이고 전문적인 어조로 약 400자 내외의 세특 예시 3가지를 작성해 주세요. 각 예시는 학생의 수준(상/중/하) 혹은 강조점(학업역량 중심/진로연계 중심/인성공동체 중심)을 다르게 하여 작성해 주세요.
+                        `;
+                    } else {
+                        prompt = `
+                        1. 역할 정의 : 당신은 대한민국 고등학교의 베테랑 담임 교사입니다. 학생의 1년간의 학교생활을 면밀히 관찰하여, **'2022 개정 교육과정'의 인재상(포용성, 창의성, 주도성)**과 6대 핵심 역량이 잘 드러나도록 학교생활기록부의 '행동특성 및 종합의견'을 작성해야 합니다.
+                          
+                        2. 작성 지침 (기반 자료 및 필수 고려 사항)
+                        • 핵심 역량 연결: 단순한 성격 묘사를 넘어, 다음의 6대 핵심 역량 중 학생에게 해당되는 역량을 구체적 사례와 연결하세요.
+                            ◦ ① 자기관리(꿈과 끼를 키우는 주도성)
+                            ◦ ② 지식정보처리(합리적 문제 해결)
+                            ◦ ③ 창의적 사고(융합 및 새로운 가치 창출)
+                            ◦ ④ 심미적 감성(공감 및 문화적 감수성)
+                            ◦ ⑤ 협력적 소통(경청 및 의견 존중)
+                            ◦ ⑥ 공동체 역량(배려, 나눔, 시민의식)
+                        • 변화와 성장 강조: 학기 초와 비교하여 성장한 점이나, 약점을 극복하기 위해 노력한 과정을 서술하세요. (예: 흥미가 부족했으나 끈기 있게 노력하여 발전함).
+                        • 구체적 관찰 근거: "착하다", "성실하다" 같은 추상적 표현 대신, **"~한 상황에서 ~하게 행동함"**과 같이 교사가 직접 관찰한 구체적인 에피소드를 포함하여 입학사정관이 학생을 상상할 수 있게 하세요.
+                        • 공동체 및 인성 요소: 학급 내 역할(반장, 부장, 멘토링 등) 수행 과정에서 보여준 소통, 협력, 배려, 갈등 조정 능력을 구체적으로 기술하세요.
+                        • 어조 및 형식: 긍정적이고 발전 가능성을 강조하는 어조를 사용하고, '~함', '~임', '~보임', '~평가됨' 등의 개조식 종결어미를 사용하세요.
+                          
+                        3. 작성 구조 (흐름)
+                        1. [도입] 학생의 전반적인 성향, 인성, 학급 내 역할 (핵심 키워드 제시)
+                        2. [본문] 구체적인 활동 사례 2~3가지 (갈등 해결, 행사 기획, 멘토링, 자기주도적 탐구 등) + 핵심 역량 매칭
+                        3. [결론] 학생의 성장 가능성 및 추후 발전 기대감
+
+                        4. 입력 정보
+                        • 학생 이름: ${selectedStudent.name}
+                        • 관찰 내용 및 키워드: ${keywords}
+                          
+                        5. 위 입력 정보를 바탕으로, 400자 내외의 행동특성 및 종합의견 예시 2가지 버전을 작성해 주세요.
+                        • 버전 1 (학업 소양 및 자기관리 역량 중심): 자기주도성, 지식 탐구 태도, 성실성을 강조
+                        • 버전 2 (종합적 발전 가능성 중심): 인성과 역량이 조화롭게 성장한 모습을 강조
+                        `;
+                    }
+                    
+                    try {
+                        const result = await generateText(prompt);
+                        setGeneratedRecord(result);
+                    } catch (error) {
+                        console.error("API Error, falling back to mock:", error);
+                        // API 에러 시 데모 결과 보여주기 (딜레이 효과)
+                        await new Promise(r => setTimeout(r, 1500));
+                        setGeneratedRecord(recordType === 'subject' ? mockSubjectResult : mockBehaviorResult);
+                    }
+                } else {
+                    // 3. API 키가 없을 경우: 데모 모드 실행
+                    // 실제 생성되는 것처럼 2초 정도 딜레이를 줌
+                    await new Promise(r => setTimeout(r, 2000));
+                    setGeneratedRecord(recordType === 'subject' ? mockSubjectResult : mockBehaviorResult);
+                }
+                
                 setIsGenerating(false);
             };
 
@@ -452,19 +629,24 @@
             const profileImageSrc = "https://ivy-rugby-daf.notion.site/image/attachment%3A3a199f97-f1d4-405b-856d-1eb38e8402f2%3A%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7-2025-10-10-214714.svg?table=block&id=2883ec20-06d9-802c-8879-f10a58613375&spaceId=a57f2ff5-0671-465c-bf6a-c699bdf0fd16&userId=&cache=v2";
             
             // New Banner Images from Google Drive
-            const introImageSrc = "https://lh3.googleusercontent.com/d/1VMuU_Ag6BLTawt0w7MmLrFlD2Z4_MvzB";
+            // Updated Intro Images
+            const introImageSrc = "https://lh3.googleusercontent.com/d/1YnL_Ok6KhrOzH8ncm-EwSGQ7KnXNQwhW";
             const intro2ImageSrc = "https://lh3.googleusercontent.com/d/1IB0Oi4IpNk9yHM5mJi1cli1BvjGoAiYI";
-            const schoolStatusImageSrc = "https://lh3.googleusercontent.com/d/1H4b27klfqPZ4IKYMYCIOt94Wo3BvrjKw";
-            const summaryImageSrc = "https://lh3.googleusercontent.com/d/1jnhY2piY70CgF8bVFZJ4el7Nue_pMn5k";
-            const case1ImageSrc = "https://lh3.googleusercontent.com/d/117jP2Gr7YiJfO1P2Ep7BExlJVzjIs_UA";
-            const case2ImageSrc = "https://lh3.googleusercontent.com/d/1Gd3mEeKtJPQZxS6QgFdPdOR4cyMFG5C4";
             
-            // New Image for Communication Innovation
-            const communicationCaseImageSrc = "https://lh3.googleusercontent.com/d/1JiFqy7RXUcZ9dQbTOdzC1K2K1GNJxR5r";
+            const schoolStatusImageSrc = "https://lh3.googleusercontent.com/d/1cc2fQv-ajGT7cuB3_rtqTOfGmnQp-jo-";
+            // Updated Summary Image Link
+            const summaryImageSrc = "https://lh3.googleusercontent.com/d/1c8ytXYzDq0zRJLnUdvkwnEvmbzJb8VwR";
+            // Updated Case Images for Record Innovation
+            const case1ImageSrc = "https://lh3.googleusercontent.com/d/1zBvqMvw8o-BT9Tu-hlW5NV7t4KaAZIvx";
+            const case2ImageSrc = "https://lh3.googleusercontent.com/d/1RilY45MDXaHUvUYcKVaiA8i7DKSTcmxE";
             
-            // New Images for Problems
-            const problem1ImageSrc = "https://lh3.googleusercontent.com/d/1OyTeXnVO2Z5ZGNhyW51KI_PograK1gMA";
-            const problem2ImageSrc = "https://lh3.googleusercontent.com/d/1vz_IVk8JKfqgSmeSyJJUh2l2z2oNrEur";
+            // New Image for Communication Innovation (Updated)
+            const communicationCaseImageSrc = "https://lh3.googleusercontent.com/d/19JoHgXzIxUnvjey2eniGLw84GIx5615q";
+            
+            // New Images for Problems (Updated)
+            const problem1ImageSrc = "https://lh3.googleusercontent.com/d/1rdPY-acaxrsKUeiBpE72YulMmRP_SyV7";
+            const problem2ImageSrc = "https://lh3.googleusercontent.com/d/1QkraKgqURFrleYqV1fWmE6ywn7U62wDg";
+            const problem3ImageSrc = "https://lh3.googleusercontent.com/d/1RuA8Ab-r5e9eE_cotpxFOi2ye-N75Rup";
             
             // New Images for Administration Innovation
             const admin1ImageSrc = "https://lh3.googleusercontent.com/d/173nrMM8uNnzz7y8P7XcOA0TdjzUHZhbq";
@@ -473,18 +655,18 @@
             const admin4ImageSrc = "https://lh3.googleusercontent.com/d/1oVmF1wdi6e1Ex_D1UdBwENQmNuAzkyEt";
             const admin5ImageSrc = "https://lh3.googleusercontent.com/d/1LxTfZpxbksgNaWPx3W5q1owb7r1s6D3N";
 
-            // New Images for Evaluation Innovation
-            const eval1ImageSrc = "https://lh3.googleusercontent.com/d/1lOaGuBtdcLs1x_L4H8U4-iCGKtpKIjaF";
-            const eval2ImageSrc = "https://lh3.googleusercontent.com/d/1NfqBAK789O5A0xs-qW6gfheluzDaRQnL";
+            // New Images for Evaluation Innovation (Updated)
+            const eval1ImageSrc = "https://lh3.googleusercontent.com/d/1oCGRKCYXppRUBGcu7vihNo7m7MBRVjg-";
+            const eval2ImageSrc = "https://lh3.googleusercontent.com/d/1GoK92OSLt1iDPnZZZmWpX2XH4a2hF6M4";
             
-            // New Banner Popup Image
+            // New Banner Popup Image (Reverted)
             const bannerPopupImageSrc = "https://lh3.googleusercontent.com/d/135c37kRjUC_MWBaTTQ8KmIQgWH1Zjrxh";
 
             const profileModalImageSrc = "https://ivy-rugby-daf.notion.site/image/attachment%3A22d5c620-5d2d-43eb-9527-f1c30d3f23bd%3A%EC%A0%84%EC%A3%BC%EB%8C%80-2025-AIDT-%ED%99%9C%EC%9A%A9-%EC%98%81%EC%96%B4-%EC%88%98%EC%97%85-%EC%97%AD%EB%9F%89%EA%B0%95%ED%99%94-%EC%97%B0%EC%88%98-_251126_-002.jpg?table=block&id=2b63ec20-06d9-805b-b202-fcbe29a842ff&spaceId=a57f2ff5-0671-465c-bf6a-c699bdf0fd16&width=1420&userId=&cache=v2";
             const careerModalImageSrc = "https://ivy-rugby-daf.notion.site/image/attachment%3A504098f4-2cde-4ddf-b94b-55b85ddb79bc%3A%EC%A0%84%EC%A3%BC%EB%8C%80-2025-AIDT-%ED%99%9C%EC%9A%A9-%EC%98%81%EC%96%B4-%EC%88%98%EC%97%85-%EC%97%AD%EB%9F%89%EA%B0%95%ED%99%94-%EC%97%B0%EC%88%98-_251126_-002.jpg?table=block&id=2b63ec20-06d9-8036-8f51-d1fff7779c09&spaceId=a57f2ff5-0671-465c-bf6a-c699bdf0fd16&width=1420&userId=&cache=v2";
             
-            // Updated Footer Image (Converted to direct link)
-            const footerModalImageSrc = "https://lh3.googleusercontent.com/d/1FtV0qvmxut69-lSbhY5aYKzYhutwuTV3";
+            // Updated Footer Image (Target Link)
+            const footerModalImageSrc = "https://lh3.googleusercontent.com/d/14eQvOzhV00Dm2_wE_JR08tgXeO1Dl35H";
             
             const eduMinistryImageSrc = "https://ivy-rugby-daf.notion.site/image/attachment%3A5c0b8b56-2b02-4076-b7b3-78855db93ec0%3Aimage.png?table=block&id=2b63ec20-06d9-8043-823d-c98820c952fe&spaceId=a57f2ff5-0671-465c-bf6a-c699bdf0fd16&width=1420&userId=&cache=v2";
 
@@ -492,22 +674,63 @@
                 { url: "https://ivy-rugby-daf.notion.site/image/attachment%3A48ea0781-f7ef-409c-ba2a-e6f759aeccb0%3A20250416_190209.jpg?table=block&id=2b63ec20-06d9-8087-b2d6-fad4b86633a9&spaceId=a57f2ff5-0671-465c-bf6a-c699bdf0fd16&width=660&userId=&cache=v2", desc: "온라인 디지털 기반 협력 수업 모습" },
                 { url: "https://ivy-rugby-daf.notion.site/image/attachment%3A85a6c8a3-d163-40bb-bc65-4cb070372c4d%3ADSC_8120.jpg?table=block&id=2b63ec20-06d9-8003-929b-e9d6df1caab7&spaceId=a57f2ff5-0671-465c-bf6a-c699bdf0fd16&width=1420&userId=&cache=v2", desc: "AI · 디지털 활용 모둠 협력 수업" },
                 { url: "https://lh3.googleusercontent.com/d/1Dc2q-pG4-GiCDNYifTRci5uKin1xWGIZ", desc: "교직원이 직접 공감하는 연수" },
-                { url: "https://lh3.googleusercontent.com/d/1WMtRU9EyB6ifZm61L2nQTyT4rjftshr6", desc: "선도학교 업무담당자 철저한 준비" }
+                { url: "https://lh3.googleusercontent.com/d/1r5Et34spgtDbgL_SZ8-c14bRWqqRCVWz", desc: "선도학교 업무담당자 철저한 준비" }
             ];
 
             return (
                 <div className="min-h-screen text-stone-800 relative">
                     
                     {/* Navigation */}
-                    <nav className="fixed top-0 w-full bg-[#FDFCF6]/90 backdrop-blur-md shadow-sm z-50 border-b border-stone-200">
+                    <nav className="fixed top-0 w-full bg-[#FDFCF6]/90 backdrop-blur-md shadow-sm z-50 border-b border-stone-200" style={{ backgroundColor: `${themeColor}E6` }}>
                         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div className="flex items-center h-16 gap-12">
-                                <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => openModal(bannerPopupImageSrc)}>
-                                    <GraduationCap color="#D97706" size={28} />
-                                    <span className="font-bold text-base text-stone-900 tracking-tight google-font whitespace-nowrap">
-                                        전북 호남고등학교 <span className="text-[#F43F5E]">2025 디지털 선도학교</span> 활용 사례 High Tech & Touch
-                                    </span>
+                            <div className="flex items-center h-16">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => openModal(bannerPopupImageSrc)}>
+                                        <GraduationCap color="#D97706" size={28} />
+                                        <span className="font-bold text-base text-stone-900 tracking-tight google-font whitespace-nowrap hidden sm:inline">
+                                            전북 호남고등학교 <span className="text-[#F43F5E]">2025 디지털 선도학교</span> 활용 사례 High Tech & Touch
+                                        </span>
+                                        <span className="font-bold text-base text-stone-900 tracking-tight google-font whitespace-nowrap sm:hidden">
+                                            호남고 High Tech & Touch
+                                        </span>
+                                    </div>
+
+                                    {/* Theme Picker Banner - Moved here inside a flex group to be next to "Touch" */}
+                                    <div className="relative hidden md:block">
+                                        <button 
+                                            onClick={() => setShowThemePicker(!showThemePicker)}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-stone-200 bg-white hover:bg-stone-50 transition-colors shadow-sm group whitespace-nowrap"
+                                        >
+                                            <Palette size={16} className="text-stone-600 group-hover:text-amber-600 transition-colors" />
+                                            <span className="text-xs font-bold text-stone-600 group-hover:text-stone-800">배경 테마</span>
+                                        </button>
+                                        
+                                        {showThemePicker && (
+                                            <div className="absolute top-full left-0 mt-2 p-2 bg-white rounded-xl shadow-xl border border-stone-100 flex items-center gap-2 z-50 animate-fade-in min-w-max">
+                                                {themeColors.map((color) => (
+                                                    <button
+                                                        key={color.value}
+                                                        onClick={() => { setThemeColor(color.value); setShowThemePicker(false); }}
+                                                        className={`w-5 h-5 rounded-full border border-stone-200 transition-transform hover:scale-110 ${themeColor === color.value ? 'ring-2 ring-amber-400 ring-offset-1' : ''}`}
+                                                        style={{ backgroundColor: color.value }}
+                                                        title={color.name}
+                                                    />
+                                                ))}
+                                                {/* 심리상태 Link Button */}
+                                                <div className="w-px h-4 bg-stone-200 mx-1"></div>
+                                                <a 
+                                                    href="https://www.canva.com/design/DAG_mNnxKuE/xQFpymzXqaa91RIjcHhsMQ/view?utm_content=DAG_mNnxKuE&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h480076ddb3" 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    className="px-2 py-0.5 bg-rose-50 border border-rose-100 text-rose-600 rounded text-[10px] font-bold hover:bg-rose-100 transition-colors whitespace-nowrap flex items-center gap-1"
+                                                >
+                                                    심리상태
+                                                </a>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
+
                                 <div className="hidden md:flex space-x-6 ml-auto">
                                     {navItems.map((item) => (
                                         <button key={item.id} onClick={() => scrollToSection(item.id)} className={`text-sm font-medium transition-colors duration-200 whitespace-nowrap ${activeTab === item.id ? 'text-stone-900 font-bold' : 'text-stone-500 hover:text-amber-600'}`}>
@@ -516,12 +739,35 @@
                                     ))}
                                 </div>
                                 <div className="md:hidden ml-auto">
-                                    <button onClick={toggleMenu} className="text-stone-600"><X size={24} /></button>
+                                    <button onClick={toggleMenu} className="text-stone-600"><Menu size={24} /></button>
                                 </div>
                             </div>
                         </div>
                         {mobileMenuOpen && (
-                            <div className="md:hidden bg-[#FDFCF6] border-b border-stone-200">
+                            <div className="md:hidden bg-[#FDFCF6] border-b border-stone-200" style={{ backgroundColor: themeColor }}>
+                                {/* Mobile Theme Picker */}
+                                <div className="px-5 py-3 border-b border-stone-100">
+                                    <div className="text-xs font-bold text-stone-500 mb-2 flex items-center gap-1"><Palette size={12}/> 배경 테마 선택</div>
+                                    <div className="flex gap-2 flex-wrap items-center">
+                                        {themeColors.map((color) => (
+                                            <button
+                                                key={color.value}
+                                                onClick={() => { setThemeColor(color.value); }}
+                                                className={`w-6 h-6 rounded-full border border-stone-200 ${themeColor === color.value ? 'ring-2 ring-amber-400 ring-offset-1' : ''}`}
+                                                style={{ backgroundColor: color.value }}
+                                            />
+                                        ))}
+                                        <div className="w-px h-4 bg-stone-300 mx-1"></div>
+                                        <a 
+                                            href="https://www.canva.com/design/DAG_mNnxKuE/xQFpymzXqaa91RIjcHhsMQ/view?utm_content=DAG_mNnxKuE&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h480076ddb3" 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="px-2 py-1 bg-rose-50 border border-rose-100 text-rose-600 rounded-lg text-xs font-bold hover:bg-rose-100 transition-colors whitespace-nowrap flex items-center gap-1"
+                                        >
+                                            심리상태
+                                        </a>
+                                    </div>
+                                </div>
                                 <div className="px-2 pt-2 pb-3 space-y-1">
                                     {navItems.map((item) => (
                                         <button key={item.id} onClick={() => scrollToSection(item.id)} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-stone-600 hover:text-amber-700 hover:bg-orange-50">
@@ -534,11 +780,11 @@
                     </nav>
 
                     {/* Hero Section */}
-                    <section id="intro" className="pt-40 pb-24 px-4 bg-gradient-to-b from-[#FDFCF6] to-white">
+                    <section id="intro" className="pt-[6.5rem] pb-24 px-4" style={{ background: `linear-gradient(to bottom, ${themeColor}, white)` }}>
                         <div className="max-w-4xl mx-auto text-center animate-fade-in">
-                            <div className="mb-6"><span className="inline-block py-1.5 px-4 rounded-full border border-amber-200 bg-orange-50 text-amber-800 text-xs font-bold tracking-wider shadow-sm">2025 디지털 선도학교 우수사례 공모전 발표자료</span></div>
+                            <div className="mb-6"><span className="inline-block py-1.5 px-4 rounded-full border border-amber-200 bg-orange-50 text-amber-800 text-[12px] font-bold tracking-wider shadow-sm">2025 디지털 선도학교 우수사례 공모전 발표자료</span></div>
                             <h1 className="text-4xl md:text-6xl font-extrabold mb-4 text-stone-900 leading-tight google-font tracking-tight">
-                                <span className="block mb-6 text-3xl md:text-5xl font-medium text-stone-600">업무는 자동화(Tech), 관계는 인간화(Touch)</span>
+                                <span className="block mb-6 text-2xl md:text-4xl font-medium text-stone-600">업무는 자동화(Tech), 관계는 인간화(Touch)</span>
                                 <span className="highlight-text block">데이터 기반 AI · 디지털 전환 문화 학교</span>
                             </h1>
                             <div className="text-2xl md:text-3xl font-semibold text-stone-400 mb-6 google-font tracking-wide">
@@ -613,7 +859,7 @@
                                     </button>
                                     
                                     {showProblems && (
-                                        <div className="flex gap-2 animate-fade-in">
+                                        <div className="flex gap-2 animate-fade-in flex-wrap justify-center">
                                             <button 
                                                 onClick={() => openModal(problem1ImageSrc)}
                                                 className="px-3 py-1.5 bg-white border border-stone-200 text-stone-600 rounded-lg text-sm font-bold hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors flex items-center gap-1.5 shadow-sm"
@@ -625,6 +871,12 @@
                                                 className="px-3 py-1.5 bg-white border border-stone-200 text-stone-600 rounded-lg text-sm font-bold hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors flex items-center gap-1.5 shadow-sm"
                                             >
                                                 <CheckCircle size={14} /> 문제점(2)
+                                            </button>
+                                            <button 
+                                                onClick={() => openModal(problem3ImageSrc)}
+                                                className="px-3 py-1.5 bg-white border border-stone-200 text-stone-600 rounded-lg text-sm font-bold hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors flex items-center gap-1.5 shadow-sm"
+                                            >
+                                                <CheckCircle size={14} /> 문제점(3)
                                             </button>
                                         </div>
                                     )}
@@ -760,7 +1012,7 @@
                     </section>
 
                     {/* Classroom Case Study - Updated with PDF Context */}
-                    <section id="class" className="py-24 px-4 bg-[#FDFCF6]">
+                    <section id="class" className="py-24 px-4 transition-colors duration-500" style={{ backgroundColor: themeColor }}>
                         <div className="max-w-5xl mx-auto">
                             <div className="mb-16 text-center">
                                 <h2 className="text-3xl md:text-4xl font-bold text-stone-900 mb-4 google-font">수업 적용: 하이브리드 융합</h2>
@@ -781,7 +1033,7 @@
                                     title="AI 튜터와 맞춤형 읽기/쓰기" 
                                     desc="AI 발음 분석 및 구문 분석으로 자기주도적 독해. 교사가 직접 만든 'AI 영작문 첨삭 도우미'를 활용하여 실시간 피드백 제공." 
                                     icon={<Brain color="#FFFFFF" size={18} />} 
-                                    link="https://j-k-park.github.io/yanghun_10130/"
+                                    link="https://grammar-ai-helper.netlify.app/"
                                 />
                                 <TimelineItem 
                                     step="관찰 (Observation)" 
@@ -1073,7 +1325,7 @@
                     </section>
 
                     {/* Footer */}
-                    <footer className="bg-[#FDFCF6] py-16 border-t border-stone-200">
+                    <footer className="py-16 border-t border-stone-200 transition-colors duration-500" style={{ backgroundColor: themeColor }}>
                         <div className="max-w-5xl mx-auto px-4 text-center">
                             <p className="text-stone-500 text-lg mb-2 font-medium">Consumer에서 Creator로</p>
                             <h3 className="font-bold text-stone-800 mb-3 google-font text-2xl">전북 호남고등학교 교육정보부</h3>
@@ -1083,7 +1335,7 @@
                                 <span className="w-2 h-2 bg-green-600 rounded-full"></span>
                                 <span className="font-medium">Teacher: Park Jeong-kyo</span>
                             </div>
-                            <div className="mt-10 text-sm text-black font-medium leading-relaxed">
+                            <div className="mt-10 text-sm text-stone-400 font-medium leading-relaxed">
                                 <p>Copyrightⓒ 호남고등학교. All rights reserved</p>
                                 <p className="mt-1">주소 : (우 : 56202) 전북특별자치도 정읍시 정읍남로 1364-13</p>
                                 <p>전화 : 교무실 : 063-570-7815 행정실 : 063-570-7884~1 FAX:063-537-7182</p>
@@ -1091,14 +1343,9 @@
                         </div>
                     </footer>
 
-                    {/* Image Modal */}
+                    {/* Image Modal - Replaced with Zoomable & Draggable Component */}
                     {activeModalImage && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-fade-in" onClick={closeModal}>
-                            <div className="relative max-w-[95vw] max-h-[95vh] w-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-                                <button onClick={closeModal} className="absolute -top-12 right-0 md:right-4 text-white hover:text-amber-400 transition-colors bg-black/50 rounded-full p-2"><X size={32} /></button>
-                                <img src={activeModalImage} alt="확대 이미지" className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl border border-stone-800" />
-                            </div>
-                        </div>
+                        <ImageModal src={activeModalImage} onClose={closeModal} />
                     )}
                 </div>
             );
