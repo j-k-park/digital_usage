@@ -645,7 +645,7 @@
             
             // New Banner Images from Google Drive
             // Updated Intro Images
-            const introImageSrc = "https://lh3.googleusercontent.com/d/1YnL_Ok6KhrOzH8ncm-EwSGQ7KnXNQwhW";
+            const introImageSrc = "https://lh3.googleusercontent.com/d/1LqwaxQp7Nj1sIyqcbiEtxcrHWlsbje_A";
             const intro2ImageSrc = "https://lh3.googleusercontent.com/d/1IB0Oi4IpNk9yHM5mJi1cli1BvjGoAiYI";
             
             const schoolStatusImageSrc = "https://lh3.googleusercontent.com/d/1cc2fQv-ajGT7cuB3_rtqTOfGmnQp-jo-";
@@ -663,19 +663,22 @@
             const problem2ImageSrc = "https://lh3.googleusercontent.com/d/1QkraKgqURFrleYqV1fWmE6ywn7U62wDg";
             const problem3ImageSrc = "https://lh3.googleusercontent.com/d/1RuA8Ab-r5e9eE_cotpxFOi2ye-N75Rup";
             
-            // New Images for Administration Innovation
-            const admin1ImageSrc = "https://lh3.googleusercontent.com/d/173nrMM8uNnzz7y8P7XcOA0TdjzUHZhbq";
-            const admin2ImageSrc = "https://lh3.googleusercontent.com/d/1zmjNQ0WvseoJjhkZLcCnmRs8xdQV8Yac";
-            const admin3ImageSrc = "https://lh3.googleusercontent.com/d/1O0Ff-FBtM8V0k7T5f3VRKjZn6qTHl4sG";
-            const admin4ImageSrc = "https://lh3.googleusercontent.com/d/1oVmF1wdi6e1Ex_D1UdBwENQmNuAzkyEt";
-            const admin5ImageSrc = "https://lh3.googleusercontent.com/d/1LxTfZpxbksgNaWPx3W5q1owb7r1s6D3N";
+            // New Images for Administration Innovation (Updated)
+            const admin1ImageSrc = "https://lh3.googleusercontent.com/d/1QwQyO2hNkVAIhRC5YMj8CxWkrR79ZUrF";
+            const admin2ImageSrc = "https://lh3.googleusercontent.com/d/1W6YOcn8dimCU_E4fI2MwT_G2dhHiTJGQ";
+            const admin3ImageSrc = "https://lh3.googleusercontent.com/d/1-ZbNspwIHaysdjnzz1xKVGaAfRuD9IJL";
+            const admin4ImageSrc = "https://lh3.googleusercontent.com/d/10KIC9uOsu-1Q_k-8WQLTDTJbRVx3J1eE";
+            const admin5ImageSrc = "https://lh3.googleusercontent.com/d/1sg2e09I-HFJUvTohp4IkzqLBJIRQ7y0t";
 
             // New Images for Evaluation Innovation (Updated)
             const eval1ImageSrc = "https://lh3.googleusercontent.com/d/1oCGRKCYXppRUBGcu7vihNo7m7MBRVjg-";
             const eval2ImageSrc = "https://lh3.googleusercontent.com/d/1GoK92OSLt1iDPnZZZmWpX2XH4a2hF6M4";
             
-            // New Banner Popup Image (Reverted)
-            const bannerPopupImageSrc = "https://lh3.googleusercontent.com/d/135c37kRjUC_MWBaTTQ8KmIQgWH1Zjrxh";
+            // New Banner Popup Image (Updated Link)
+            const bannerPopupImageSrc = "https://lh3.googleusercontent.com/d/1dt4R6uiez1e5h8YzCbCg9dp958xQQq2r";
+            
+            // QR Code Image (New)
+            const qrCodeImageSrc = "https://lh3.googleusercontent.com/d/1OqRuPQ02A_yaIHHS_Jw0bnOBneZb5JO2";
 
             const profileModalImageSrc = "https://ivy-rugby-daf.notion.site/image/attachment%3A22d5c620-5d2d-43eb-9527-f1c30d3f23bd%3A%EC%A0%84%EC%A3%BC%EB%8C%80-2025-AIDT-%ED%99%9C%EC%9A%A9-%EC%98%81%EC%96%B4-%EC%88%98%EC%97%85-%EC%97%AD%EB%9F%89%EA%B0%95%ED%99%94-%EC%97%B0%EC%88%98-_251126_-002.jpg?table=block&id=2b63ec20-06d9-805b-b202-fcbe29a842ff&spaceId=a57f2ff5-0671-465c-bf6a-c699bdf0fd16&width=1420&userId=&cache=v2";
             const careerModalImageSrc = "https://ivy-rugby-daf.notion.site/image/attachment%3A504098f4-2cde-4ddf-b94b-55b85ddb79bc%3A%EC%A0%84%EC%A3%BC%EB%8C%80-2025-AIDT-%ED%99%9C%EC%9A%A9-%EC%98%81%EC%96%B4-%EC%88%98%EC%97%85-%EC%97%AD%EB%9F%89%EA%B0%95%ED%99%94-%EC%97%B0%EC%88%98-_251126_-002.jpg?table=block&id=2b63ec20-06d9-8036-8f51-d1fff7779c09&spaceId=a57f2ff5-0671-465c-bf6a-c699bdf0fd16&width=1420&userId=&cache=v2";
@@ -797,7 +800,18 @@
                     {/* Hero Section */}
                     <section id="intro" className="pt-[6.5rem] pb-24 px-4" style={{ background: `linear-gradient(to bottom, ${themeColor}, white)` }}>
                         <div className="max-w-4xl mx-auto text-center animate-fade-in">
-                            <div className="mb-6"><span className="inline-block py-1.5 px-4 rounded-full border border-amber-200 bg-orange-50 text-amber-800 text-[12px] font-bold tracking-wider shadow-sm">2025 디지털 선도학교 우수사례 공모전 발표자료</span></div>
+                            <div className="flex justify-center items-center gap-2 mb-6 flex-wrap">
+                                <span className="inline-flex items-center h-[30px] px-4 rounded-full border border-amber-200 bg-orange-50 text-amber-800 text-[12px] font-bold tracking-wider shadow-sm">
+                                    2025 디지털 선도학교 우수사례 공모전 발표자료
+                                </span>
+                                <button 
+                                    onClick={() => openModal(qrCodeImageSrc)}
+                                    className="inline-flex items-center h-[30px] gap-1.5 px-4 rounded-full border border-stone-200 bg-white text-stone-600 text-[12px] font-bold tracking-wider shadow-sm hover:bg-stone-50 hover:text-stone-900 transition-colors hover:border-stone-300"
+                                >
+                                    <Key size={12} className="text-stone-400" />
+                                    QR코드
+                                </button>
+                            </div>
                             <h1 className="text-4xl md:text-6xl font-extrabold mb-4 text-stone-900 leading-tight google-font tracking-tight">
                                 <span className="block mb-6 text-2xl md:text-4xl font-medium text-stone-600">업무는 자동화(Tech), 관계는 인간화(Touch)</span>
                                 <span className="highlight-text block">데이터 기반 AI · 디지털 전환 문화 학교</span>
@@ -949,7 +963,7 @@
                                                 <Sparkles size={12} /> 사례(2)
                                             </button>
                                             <a 
-                                                href="https://j-k-park.github.io/yanghun_10130/"
+                                                href="https://grammar-ai-helper.netlify.app/"
                                                 target="_blank" 
                                                 rel="noopener noreferrer"
                                                 className="px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-xs font-bold hover:bg-blue-100 transition-colors flex items-center gap-1 whitespace-nowrap"
